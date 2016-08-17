@@ -1,24 +1,22 @@
 var hardwareStream = require('./')
-var harware = hardwareStream('stdin')
-var hs = harware.createReadStream()
-var hsW = harware.createWriteStream()
+var hs = hardwareStream('stdin').createStream()
 
 var opts = {}
 
 function updateLED () {
   var blueLED = Math.random() < 0.5
   var redLED = !blueLED
-  hsW.write({
+  return {
     blueLED: blueLED,
     redLED: redLED
-  })
+  }
 }
 
 
 ///////////////////////////////////
 var through = require('through2')
-function createExperimentStream(update) {
-  update()
+function createExperimentStream(update, hs) {
+  hs.write(update())
   var score = 0
   var prevTime = Date.now()
   
@@ -28,7 +26,7 @@ function createExperimentStream(update) {
     prevTime = curTime
     if (data.blueLED === data.blueButton && data.redLED === data.redButton) score++
     else score--
-    update()
+    hs.write(update())
     callback(null, {
       data: data,
       score: score,
@@ -66,7 +64,7 @@ var timeStream = require('time-stream')
 var encoder = require('./encoder')
 
 var ts = timeStream.createWriteStream('test.data', encoder.Data)
-var es = createExperimentStream(updateLED)
+var es = createExperimentStream(updateLED, hs)
 //var ls = createGraphStream()
 
 
