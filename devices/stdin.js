@@ -15,8 +15,8 @@ module.exports = function () {
           redButton: redButton,
         })
       })
+
       var writableStream = writer.obj(function (data, enc, callback) {
-//        console.log(data)
         var redLED = data.writeData.redLED
         var blueLED = data.writeData.blueLED
         if (blueLED) console.log(chalk.bgBlue('  '))
@@ -24,6 +24,7 @@ module.exports = function () {
         else console.log(chalk.bgWhite('  '))
         callback()
       })
+
       return duplexify.obj(writableStream, readableStream)
     }
   }

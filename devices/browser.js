@@ -1,32 +1,30 @@
 var from = require('from2')
-var EventEmitter = require('events').EventEmitter
-var emitter = new EventEmitter();
-emitter.emit('ready')
+var writer = require('to2')
+var duplexify = require('duplexify')
 
 module.exports = function () {
-  var blueLED = false
-  var redLED = false
   return {
     createStream: function () {
-      var stream = from.obj(function () {})
+      var readableStream = from.obj(function () {})
       window.clickButton = function(val) {
         var blueButton = (val === 'b')
         var redButton = (val === 'r')
-        stream.push({
+        readableStream.push({
           blueButton: blueButton,
-          blueLED: blueLED,
           redButton: redButton,
-          redLED: redLED,
         })
       }
-      return stream
-    },
-    turnOnLED: function (opts) {
-      redLED = opts.redLED
-      blueLED = opts.blueLED
-      if (blueLED) console.log('blue')
-      else if (redLED) console.log('red')
-      else console.log('white')
+
+      var writableStream = writer.obj(function (data, enc, callback) {
+        var redLED = data.writeData.redLED
+        var blueLED = data.writeData.blueLED
+        if (blueLED) console.log('blue')
+        else if (redLED) console.log('red')
+        else console.log('white')
+        callback()
+      })
+
+      return duplexify.obj(writableStream, readableStream)
     }
   }
 }

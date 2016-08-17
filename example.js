@@ -62,10 +62,7 @@ function createVisulaizationStream() {
 //////////////////////////////////////////////////////////////////////
 
 
-
-
-
-var graph = createGraphStream()
+var graph = createVisulaizationStream()
 
 var encoder = require('./encoder')
 var loggingStream = require('time-stream')
