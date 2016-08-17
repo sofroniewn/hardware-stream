@@ -1,14 +1,12 @@
 var hardwareStream = require('./')
+var harware = hardwareStream('stdin')
 
 var opts = {}
-var hs = hardwareStream('stdin')
-
-var stream = hs.createStream()
 
 function updateLED () {
   var blueLED = Math.random() < 0.5
   var redLED = !blueLED
-  hs.turnOnLED({
+  harware.turnOnLED({
     blueLED: blueLED,
     redLED: redLED
   })
@@ -62,30 +60,39 @@ function createGraphStream() {
 ///////////////////////////////////
 
 
-
-
-var ls = createGraphStream()
+var timeStream = require('time-stream')
 var encoder = require('./encoder')
 
+var ts = timeStream.createWriteStream('test.data', encoder.Data)
+var es = createExperimentStream(updateLED)
+//var ls = createGraphStream()
+
+
 ////serialize data stream from hardware
-// var timeStream = require('time-stream')
-// var ts = timeStream.createWriteStream('test.data', encoder.Data)
-// var exp = stream.pipe(createExperimentStream(updateLED))
-// exp.on('data', console.log)
-// exp.pipe(ts)
-// exp.pipe(ls)
-
-  
-
-
+if (harware.board) {
+  harware.board.on('ready', function () {
+    var hs = harware.createStream()
+    var rs = hs.pipe(es)
+    rs.on('data', console.log)
+    rs.pipe(ts)
+    //rs.pipe(ls)
+  })
+}
+else {
+  var hs = harware.createStream()
+  var rs = hs.pipe(es)
+  rs.on('data', console.log)
+  rs.pipe(ts)
+  //rs.pipe(ls)
+} 
 
 
 //Replay experiment
-var tsR = require('./replayStream')('test.data', encoder.Data)
-tsR.pipe(ls)
-tsR.on('data', function (data) {
-  console.log(data)
-})
+// var tsR = require('./replayStream')('test.data', encoder.Data)
+// tsR.pipe(ls)
+// tsR.on('data', function (data) {
+//   console.log(data)
+// })
 
 
 

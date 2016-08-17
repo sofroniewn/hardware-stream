@@ -5,12 +5,47 @@ var board = new five.Board({repl: false, debug: false})
 module.exports = function () {
   var blueLED = false
   var redLED = false
+  var blueButton = false
+  var redButton = false
+
+  var blueButtonPin = new five.Button(0)
+  var redButtonPin = new five.Button(1)
+  var blueLEDPin = new five.LED(2)
+  var redLEDPin = new five.LED(3)
+
   return {
     createStream: function () {
-      var stream =  from.obj(function () {})
-      process.stdin.on('data', function (data) {
-        var blueButton = (data.toString().trim() === 'b')
-        var redButton = (data.toString().trim() === 'r')
+      var stream = from.obj(function () {})
+      
+      blueButtonPin.on('press', function () {
+        blueButton = true
+        stream.push({
+          blueButton: blueButton,
+          blueLED: blueLED,
+          redButton: redButton,
+          redLED: redLED,
+        })
+
+      blueButtonPin.on('release', function () {
+        redButton = false
+        stream.push({
+          blueButton: blueButton,
+          blueLED: blueLED,
+          redButton: redButton,
+          redLED: redLED,
+        })
+
+      redButtonPin.on('press', function () {
+        blueButton = true
+        stream.push({
+          blueButton: blueButton,
+          blueLED: blueLED,
+          redButton: redButton,
+          redLED: redLED,
+        })
+
+      redButtonPin.on('release', function () {
+        redButton = false
         stream.push({
           blueButton: blueButton,
           blueLED: blueLED,
@@ -18,18 +53,19 @@ module.exports = function () {
           redLED: redLED,
         })
       })
+
       return stream
     },
     turnOnLED: function (opts) {
       redLED = opts.redLED
       blueLED = opts.blueLED
-      if (blueLED) console.log(chalk.bgBlue('  '))
-      else if (redLED) console.log(chalk.bgRed('  '))
-      else console.log(chalk.bgWhite('  '))
-    }
+
+      if (blueLED) blueLEDPin.on()
+      else blueLEDPin.off()
+
+      if (redLED) redLEDPin.on()
+      else redLEDPin.off()
+    },
+    board: board
   }
 }
-
-
-////////// or do johnny-five on button press, get data, edit and then push stream
-////////// replace the console.log inside turnOnLED with LED on calls

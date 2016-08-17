@@ -6,7 +6,7 @@ module.exports = function () {
   var redLED = false
   return {
     createStream: function () {
-      var stream =  from.obj(function () {})
+      var stream = from.obj(function () {})
       process.stdin.on('data', function (data) {
         var blueButton = (data.toString().trim() === 'b')
         var redButton = (data.toString().trim() === 'r')

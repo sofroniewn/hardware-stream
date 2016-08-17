@@ -9,6 +9,3 @@ module.exports = function (device) {
     default: throw new Error('unknown device')
   }
 }
-
-
-/// add destroy / end method which stops stream, shuts down hardware
