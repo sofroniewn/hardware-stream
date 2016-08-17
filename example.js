@@ -12,7 +12,7 @@ function updateLED () {
 
 var initial = updateLED()
 
-///////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 var through = require('through2')
 function createExperimentStream(update, initial) {
   var writeData = initial
@@ -36,21 +36,21 @@ function createExperimentStream(update, initial) {
     })
   })
 }
-///////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 
-///////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 var lightningStream = require('lightning-stream')
 var from = require('from2')
 var duplexify = require('duplexify')
 var Lightning = require('lightning.js')
 
-function createGraphStream() {
+function createVisulaizationStream() {
   var stream = duplexify.obj()
   var lightning = new Lightning()
   function mapping (data) {
     //return {series: [data.score]}
-    return [data.score]
+    return [data.exptData.score]
   }
   lightning.lineStreaming([0]).then(function (viz) {
     var ls = lightningStream(viz, mapping)
@@ -59,12 +59,13 @@ function createGraphStream() {
   })
   return stream
 }
-///////////////////////////////////
-
-//var graph = createGraphStream()
+//////////////////////////////////////////////////////////////////////
 
 
 
+
+
+var graph = createGraphStream()
 
 var encoder = require('./encoder')
 var loggingStream = require('time-stream')
@@ -77,8 +78,8 @@ var results = harware.pipe(expt)
 results.on('data', console.log)
 results.pipe(harware)
 results.pipe(log)
-//rs.pipe(graph)
-///////////////////////////////////
+results.pipe(graph)
+//////////////////////////////////////////////////////////////////////
 
 
 
