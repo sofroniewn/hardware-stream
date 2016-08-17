@@ -1,12 +1,14 @@
 var hardwareStream = require('./')
 var harware = hardwareStream('stdin')
+var hs = harware.createReadStream()
+var hsW = harware.createWriteStream()
 
 var opts = {}
 
 function updateLED () {
   var blueLED = Math.random() < 0.5
   var redLED = !blueLED
-  harware.turnOnLED({
+  hsW.write({
     blueLED: blueLED,
     redLED: redLED
   })
@@ -68,23 +70,29 @@ var es = createExperimentStream(updateLED)
 //var ls = createGraphStream()
 
 
+
+var rs = hs.pipe(es)
+rs.on('data', console.log)
+rs.pipe(ts)
+
+
 ////serialize data stream from hardware
-if (harware.board) {
-  harware.board.on('ready', function () {
-    var hs = harware.createStream()
-    var rs = hs.pipe(es)
-    rs.on('data', console.log)
-    rs.pipe(ts)
-    //rs.pipe(ls)
-  })
-}
-else {
-  var hs = harware.createStream()
-  var rs = hs.pipe(es)
-  rs.on('data', console.log)
-  rs.pipe(ts)
-  //rs.pipe(ls)
-} 
+// if (harware.board) {
+//   harware.board.on('ready', function () {
+//     var hs = harware.createStream()
+//     var rs = hs.pipe(es)
+//     rs.on('data', console.log)
+//     rs.pipe(ts)
+//     //rs.pipe(ls)
+//   })
+// }
+// else {
+//   var hs = harware.createStream()
+//   var rs = hs.pipe(es)
+//   rs.on('data', console.log)
+//   rs.pipe(ts)
+//   //rs.pipe(ls)
+// } 
 
 
 //Replay experiment
