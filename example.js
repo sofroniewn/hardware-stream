@@ -1,5 +1,5 @@
 var hardwareStream = require('./')
-var hs = hardwareStream('stdin').createStream()
+var harware = hardwareStream('stdin').createStream()
 
 function updateLED () {
   var blueLED = Math.random() < 0.5
@@ -10,10 +10,12 @@ function updateLED () {
   }
 }
 
+var initial = updateLED()
+
 ///////////////////////////////////
 var through = require('through2')
-function createExperimentStream(update, initialize) {
-  var writeData = initialize
+function createExperimentStream(update, initial) {
+  var writeData = initial
   var score = 0
   var prevTime = Date.now()
   
@@ -59,23 +61,24 @@ function createGraphStream() {
 }
 ///////////////////////////////////
 
-//var ls = createGraphStream()
+//var graph = createGraphStream()
 
-var timeStream = require('time-stream')
+
+
+
 var encoder = require('./encoder')
+var loggingStream = require('time-stream')
+var log = loggingStream.createWriteStream('test.data', encoder.Data)
 
-var ts = timeStream.createWriteStream('test.data', encoder.Data)
-var initialize = updateLED()
-var es = createExperimentStream(updateLED, initialize)
+var expt = createExperimentStream(updateLED, initial)
+harware.write({writeData: initial})
 
-
-hs.write({writeData: initialize})
-var rs = hs.pipe(es)
-rs.on('data', console.log)
-rs.pipe(hs)
-rs.pipe(ts)
-//rs.pipe(ls)
-
+var results = harware.pipe(expt)
+results.on('data', console.log)
+results.pipe(harware)
+results.pipe(log)
+//rs.pipe(graph)
+///////////////////////////////////
 
 
 
