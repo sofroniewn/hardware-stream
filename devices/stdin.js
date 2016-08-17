@@ -4,8 +4,6 @@ var duplexify = require('duplexify')
 var chalk = require('chalk')
 
 module.exports = function () {
-  var blueLED = false
-  var redLED = false
   return {
     createStream: function () {
       var readableStream = from.obj(function () {})
@@ -14,14 +12,13 @@ module.exports = function () {
         var redButton = (data.toString().trim() === 'r')
         readableStream.push({
           blueButton: blueButton,
-          blueLED: blueLED,
           redButton: redButton,
-          redLED: redLED,
         })
       })
       var writableStream = writer.obj(function (data, enc, callback) {
-        redLED = data.redLED
-        blueLED = data.blueLED
+//        console.log(data)
+        var redLED = data.writeData.redLED
+        var blueLED = data.writeData.blueLED
         if (blueLED) console.log(chalk.bgBlue('  '))
         else if (redLED) console.log(chalk.bgRed('  '))
         else console.log(chalk.bgWhite('  '))

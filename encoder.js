@@ -2,14 +2,20 @@ protoBuf = require('protocol-buffers')
 
 module.exports = protoBuf(`
   message Data {
-    required RawData data=1;
-    required int32 score=2;
-    required uint32 time=3;
+    required ReadData readData=1;
+    required WriteData writeData=2;
+    required ExptData exptData=3;
   }
-  message RawData {
+  message ReadData {
+    required bool blueButton = 1;
+    required bool redButton = 2;
+  }
+  message WriteData {
     required bool blueLED = 1;
-    required bool blueButton = 2;
-    required bool redLED = 3;
-    required bool redButton = 4;
+    required bool redLED = 2;
+  }
+  message ExptData {
+    required int32 score = 1;
+    required uint32 time = 2;
   }
 `)

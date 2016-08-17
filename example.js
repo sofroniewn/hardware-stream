@@ -1,8 +1,6 @@
 var hardwareStream = require('./')
 var hs = hardwareStream('stdin').createStream()
 
-var opts = {}
-
 function updateLED () {
   var blueLED = Math.random() < 0.5
   var redLED = !blueLED
@@ -12,11 +10,10 @@ function updateLED () {
   }
 }
 
-
 ///////////////////////////////////
 var through = require('through2')
-function createExperimentStream(update, hs) {
-  hs.write(update())
+function createExperimentStream(update, initialize) {
+  var writeData = initialize
   var score = 0
   var prevTime = Date.now()
   
@@ -24,13 +21,16 @@ function createExperimentStream(update, hs) {
     var curTime = Date.now()
     var deltaTime = curTime - prevTime
     prevTime = curTime
-    if (data.blueLED === data.blueButton && data.redLED === data.redButton) score++
+    if (writeData.blueLED === data.blueButton && writeData.redLED === data.redButton) score++
     else score--
-    hs.write(update())
+    writeData = update()
     callback(null, {
-      data: data,
-      score: score,
-      time: deltaTime
+      readData: data,
+      writeData: writeData,
+      exptData: {
+        score: score,
+        time: deltaTime
+      }
     })
   })
 }
@@ -59,19 +59,32 @@ function createGraphStream() {
 }
 ///////////////////////////////////
 
+//var ls = createGraphStream()
 
 var timeStream = require('time-stream')
 var encoder = require('./encoder')
 
 var ts = timeStream.createWriteStream('test.data', encoder.Data)
-var es = createExperimentStream(updateLED, hs)
-//var ls = createGraphStream()
+var initialize = updateLED()
+var es = createExperimentStream(updateLED, initialize)
 
 
-
+hs.write({writeData: initialize})
 var rs = hs.pipe(es)
 rs.on('data', console.log)
+rs.pipe(hs)
 rs.pipe(ts)
+//rs.pipe(ls)
+
+
+
+
+
+
+
+
+
+
 
 
 ////serialize data stream from hardware
