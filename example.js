@@ -1,5 +1,5 @@
 var hardwareStream = require('./')
-var harware = hardwareStream('stdin').createStream()
+var harware = hardwareStream('labjack').createStream()
 
 function updateLED () {
   var blueLED = Math.random() < 0.5
@@ -9,8 +9,6 @@ function updateLED () {
     redLED: redLED
   }
 }
-
-var initial = updateLED()
 
 //////////////////////////////////////////////////////////////////////
 var through = require('through2')
@@ -27,17 +25,15 @@ function createExperimentStream(update, initial) {
     else score--
     writeData = update()
     callback(null, {
-      readData: data,
-      writeData: writeData,
-      exptData: {
-        score: score,
-        time: deltaTime
-      }
+      blueButton: data.blueButton,
+      redButton: data.redButton,
+      blueLED: writeData.blueLED,
+      redLED: writeData.redLED,
+      score: score,
+      time: deltaTime
     })
   })
 }
-//////////////////////////////////////////////////////////////////////
-
 
 //////////////////////////////////////////////////////////////////////
 var lightningStream = require('lightning-stream')
@@ -50,7 +46,7 @@ function createVisulaizationStream() {
   var lightning = new Lightning()
   function mapping (data) {
     //return {series: [data.score]}
-    return [data.exptData.score]
+    return [data.score]
   }
   lightning.lineStreaming([0]).then(function (viz) {
     var ls = lightningStream(viz, mapping)
@@ -59,35 +55,25 @@ function createVisulaizationStream() {
   })
   return stream
 }
+
 //////////////////////////////////////////////////////////////////////
-
-
-var graph = createVisulaizationStream()
+//var graph = createVisulaizationStream()
 
 var encoder = require('./encoder')
 var loggingStream = require('time-stream')
 var log = loggingStream.createWriteStream('test.data', encoder.Data)
 
+var initial = updateLED()
 var expt = createExperimentStream(updateLED, initial)
-harware.write({writeData: initial})
+harware.write(initial)
 
 var results = harware.pipe(expt)
 results.on('data', console.log)
 results.pipe(harware)
 results.pipe(log)
-results.pipe(graph)
+//results.pipe(graph)
+
 //////////////////////////////////////////////////////////////////////
-
-
-
-
-
-
-
-
-
-
-
 ////serialize data stream from hardware
 // if (harware.board) {
 //   harware.board.on('ready', function () {
@@ -115,6 +101,32 @@ results.pipe(graph)
 // })
 
 
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// two bits of awkardness
+//   - one is how to initialize hardware. should create experiment stream take an update function???
+//   - one is how to wait for johnny-five board to be initialized, or labjack - use open-sync???
+//
+// get something working with johnny-five AND lab-jack
+//
+// create hardware-stream-2choice module
+// create experiment-stream-2AFC module
+// create visualization-stream-line module
+// create replay-stream module, add rate parameter.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// create harware-stream-mVR module
+// this module has as its readable stream xVel, yVel, responses
+// this modules has as its writable stream wallDist, reward, lapNumber
+
+// create visualization-stream-mVR module
+// this module accepts a maze during its construction and is a writable stream with wallDist and mazePos
+
+// create experiment-stream-mVR module
+// this module accepts a maze during its construction and returns a through stream that takes inputs, moves player
+// taking collisions into account, and returns wallDist and mazePos, and reward, and lapNumber
 
 
 

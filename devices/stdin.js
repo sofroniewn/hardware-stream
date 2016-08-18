@@ -17,8 +17,8 @@ module.exports = function () {
       })
 
       var writableStream = writer.obj(function (data, enc, callback) {
-        var redLED = data.writeData.redLED
-        var blueLED = data.writeData.blueLED
+        var redLED = data.redLED
+        var blueLED = data.blueLED
         if (blueLED) console.log(chalk.bgBlue('  '))
         else if (redLED) console.log(chalk.bgRed('  '))
         else console.log(chalk.bgWhite('  '))
