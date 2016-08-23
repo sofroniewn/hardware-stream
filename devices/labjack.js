@@ -5,8 +5,8 @@ var NanoTimer = require('nanotimer')
 var ljn = require('labjack-nodejs')
 var createDeviceObject = ljn.getDevice()
 var board = new createDeviceObject()
-//var EventEmitter = require('events').EventEmitter
 function err (res) {console.log('Board error: ', res)}
+//var EventEmitter = require('events').EventEmitter
 // board.open(err, function () {
 //   emitter.emit('ready')
 //   console.log('helllloooooo')
@@ -40,8 +40,6 @@ module.exports = function () {
       }, '', '10m')
 
       var writableStream = writer.obj(function (data, enc, callback) {
-        //board.writeManySync(['FIO1', 'FIO3'], [+data.blueLED, +data.redLED])
-        //callback()
         board.writeMany(['FIO1', 'FIO3'], [+data.blueLED, +data.redLED], err, callback)
       })
       return duplexify.obj(writableStream, readableStream)
